@@ -1,0 +1,9 @@
+group: mspec
+target: mspec
+sub_option: sr
+sr: 16000
+hop: 160
+nfft: 640
+dim: 80
+frame_rate: 100
+normalize: True

@@ -1,0 +1,20 @@
+{
+  "configurations": {
+    "Python: Launch": {
+      "adapter": "debugpy",
+      "breakpoints": {
+        "exception": {
+          "all": "N",
+          "uncaught": "N"
+        }
+      },
+      "configuration": {
+        "name": "Python: Launch",
+        "type": "python",
+        "request": "launch",
+        "console": "integratedTerminal",
+        "program": "${file}"
+      }
+    }
+  }
+}

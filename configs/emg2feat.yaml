@@ -1,0 +1,9 @@
+exp_name: ???
+save_name: null
+ckpt_epoch: best
+split: '*'
+permute_channel: []
+modality: emg   # emg|video (저장할 branch 선택: feat/ph vs feat_vid/ph_vid)
+
+defaults:
+  - common.yaml

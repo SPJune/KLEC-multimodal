@@ -1,0 +1,29 @@
+## Core
+numpy
+scipy
+pandas
+
+## PyTorch stack (버전/쿠다 빌드는 환경에 맞게 설치 권장)
+torch
+pytorch-lightning
+
+## Config / experiment
+hydra-core
+omegaconf
+wandb
+
+## Audio / video / features
+librosa
+soundfile
+opencv-python
+
+## TextGrid / metrics
+textgrids
+jiwer
+Unidecode
+
+## Utilities
+tqdm
+matplotlib
+einops
+transformers

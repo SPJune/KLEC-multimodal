@@ -1,0 +1,18 @@
+km_name: ???
+encoder: temp
+num_clusters: 100
+max_iter: 150
+init: k-means++
+tol: 0.0
+batch_size: 10000
+max_no_improvement: 100
+n_init: 20
+reassignment_ratio: 0.5
+max_memory: 10
+max_sec: 36000
+max_num: 24770
+target: target # target or est
+
+defaults:
+  - common.yaml
+  - feature: hubert

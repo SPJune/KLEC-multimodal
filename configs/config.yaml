@@ -1,0 +1,17 @@
+ckpt_epoch: null
+exp_name: ???
+target_sec: 4
+batch_size: 32
+phoneme_loss_weight: 0.5
+debug: False
+num_workers: 16
+pretrained_model: null
+pretrained_epoch: null
+
+defaults:
+  - common.yaml
+  - trainer: trainer
+  - optimizer: adamw
+  - emg_enc: enc
+  - feature: mspec16
+  - _self_

@@ -1,0 +1,13 @@
+wav_dir: toplines/gt
+data_split: valid
+data_type: silent_parallel_data
+encoder: 241120encoder0505
+ph_encoder: null
+use_jiwer: True
+use_gt_ph: False
+encoder_epoch: 107
+max_eval: null
+
+defaults:
+  - common.yaml
+  - feature: mspec22

@@ -1,0 +1,7 @@
+exp_name: ???
+ckpt_epoch: best
+split: '*'
+permute_channel: []
+
+defaults:
+  - common.yaml
