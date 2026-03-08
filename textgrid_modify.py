@@ -1,23 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Praat TextGrid 수정 스크립트 (dependency-free)
-
-요구사항:
-- 대상: /data2/ai_champion/silent_speech_dataset/voiced/*/data/textgrid/tg_*.TextGrid
-- TextGrid 내 'phones' IntervalTier를 확인
-- 마지막 interval의 text가 ""(빈 문자열, silence)가 아니면서 duration이 0.3초 이상으로 길게 잡힌 경우 수정
-  - 마지막 음소 interval의 duration을 0.3초로 설정
-  - 남은 시간(원래 마지막 interval의 잔여 구간)은 text="" silence interval로 할당
-
-기본 동작은 dry-run (변경사항만 출력). 실제 수정은 --write 옵션 필요.
-
-사용 예:
-  python3 textgrid_modify.py
-  python3 textgrid_modify.py --write
-  python3 textgrid_modify.py --root /data2/.../voiced --glob "*/data/textgrid/tg_*.TextGrid" --write
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -296,8 +278,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--root",
-        default="/data2/ai_champion/silent_speech_dataset/voiced",
-        help="dataset root (default: /data2/ai_champion/silent_speech_dataset/voiced)",
+        default="data_path/silent_speech_dataset/voiced",
     )
     ap.add_argument(
         "--glob",

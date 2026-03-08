@@ -3,7 +3,7 @@ numpy
 scipy
 pandas
 
-## PyTorch stack (버전/쿠다 빌드는 환경에 맞게 설치 권장)
+## PyTorch stack
 torch
 pytorch-lightning
 

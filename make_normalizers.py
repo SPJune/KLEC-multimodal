@@ -58,8 +58,6 @@ def _resolve_preprocessed_dir(cfg) -> str:
     """
     Resolve:
       {data_path}/preprocessed/target_feature/{feature.target}/{sub_option}{value}
-    e.g.
-      /data2/ai_champion/preprocessed/target_feature/mspec/sr16000
     """
     feature = cfg.feature
     sub_option = str(feature.sub_option)

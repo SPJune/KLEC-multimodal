@@ -1,18 +1,3 @@
-"""
-Montreal Forced Alignment (MFA) 전처리 스크립트
-한글 음성과 텍스트를 정렬하여 TextGrid 파일 생성
-
-사용법 (USER_ID_mfa 컨테이너 내부에서 실행):
-    단일 파일 처리
-    python /workspace/ss_multimodal/preprocess/mfa.py --sess 1-1 --num 0
-    
-    전체 세션 처리
-    python /workspace/ss_multimodal/preprocess/mfa.py --sess 1-1 --all
-    
-    컨테이너 외부에서 실행
-    docker exec USER_ID_mfa python /workspace/ss_multimodal/preprocess/mfa.py --sess 1-1 --num 0
-"""
-
 import os
 import glob
 import argparse
@@ -23,9 +8,9 @@ from typing import Optional, Tuple
 import numpy as np
 
 
-VOICED_BASE = "/data2/ai_champion/silent_speech_dataset/voiced"
-SILENT_BASE = "/data2/ai_champion/silent_speech_dataset/silent"
-PHONEME_SET_PATH = "/data2/ai_champion/silent_speech_dataset/phoneme_set.json"
+VOICED_BASE = "/data/silent_speech_dataset/voiced"
+SILENT_BASE = "/data/silent_speech_dataset/silent"
+PHONEME_SET_PATH = "/data/silent_speech_dataset/phoneme_set.json"
 
 
 MFA_ACOUSTIC_MODEL = "korean_mfa"
@@ -38,7 +23,6 @@ ALL_PHONEMES = set()
 
 
 def clean_mfa_history():
-    """손상된 MFA command_history.yaml 삭제 (반복 실행 시 깨지는 문제 방지)"""
     if os.path.exists(MFA_COMMAND_HISTORY):
         try:
             os.remove(MFA_COMMAND_HISTORY)
@@ -47,7 +31,6 @@ def clean_mfa_history():
 
 
 def find_audio_file(sess: str, num: int) -> Optional[str]:
-    """음성 파일 경로 찾기"""
     pattern = os.path.join(VOICED_BASE, sess, 'data/audio', f'*_{num:04d}.*.flac')
     matches = glob.glob(pattern)
     if matches:
@@ -56,7 +39,6 @@ def find_audio_file(sess: str, num: int) -> Optional[str]:
 
 
 def find_text_file(sess: str, num: int) -> Optional[str]:
-    """텍스트 파일 경로 찾기"""
     pattern = os.path.join(SILENT_BASE, sess, 'data/text', f'*_{num:04d}.*.npz')
     matches = glob.glob(pattern)
     if matches:
@@ -65,7 +47,6 @@ def find_text_file(sess: str, num: int) -> Optional[str]:
 
 
 def get_text_from_npz(npz_path: str) -> str:
-    """npz 파일에서 text2 키로 텍스트 추출"""
     import re
     data = np.load(npz_path, allow_pickle=True)
     text = str(data['text2'])
@@ -76,24 +57,12 @@ def get_text_from_npz(npz_path: str) -> str:
 
 
 def get_textgrid_output_path(sess: str, num: int) -> str:
-    """TextGrid 출력 경로 생성"""
     output_dir = os.path.join(VOICED_BASE, sess, 'data/textgrid')
     os.makedirs(output_dir, exist_ok=True)
     return os.path.join(output_dir, f'tg_{num:04d}.TextGrid')
 
 
 def generate_dictionary_with_g2p(text: str, dict_path: str, verbose: bool = True) -> Tuple[bool, dict]:
-    """
-    G2P 모델을 사용하여 텍스트의 발음 사전 생성
-    
-    Args:
-        text: 입력 텍스트
-        dict_path: 출력 사전 경로
-        verbose: 생성된 음소 출력 여부
-        
-    Returns:
-        (성공 여부, 단어별 음소 딕셔너리)
-    """
     global ALL_PHONEMES
     
 
@@ -155,7 +124,6 @@ def generate_dictionary_with_g2p(text: str, dict_path: str, verbose: bool = True
 
 
 def extract_phonemes_from_textgrid(textgrid_path: str) -> set:
-    """TextGrid 파일에서 phones tier의 음소만 추출"""
     global ALL_PHONEMES
     phonemes = set()
     
@@ -186,7 +154,6 @@ def extract_phonemes_from_textgrid(textgrid_path: str) -> set:
 
 
 def textgrid_has_spn(textgrid_path: str) -> bool:
-    """TextGrid 파일의 phones tier에 'spn'이 포함되어 있는지 확인"""
     if not os.path.exists(textgrid_path):
         return False
     
@@ -204,7 +171,6 @@ def textgrid_has_spn(textgrid_path: str) -> bool:
 
 
 def save_phoneme_set(path: str = None):
-    """수집된 음소 집합을 JSON 파일로 저장"""
     import json
     
     if path is None:
@@ -225,7 +191,6 @@ def save_phoneme_set(path: str = None):
 
 
 def load_phoneme_set(path: str = None) -> list:
-    """저장된 음소 집합 로드"""
     import json
     
     if path is None:
@@ -248,20 +213,6 @@ def run_mfa_alignment(
     overwrite: bool = True,
     use_g2p: bool = True
 ) -> bool:
-    """
-    MFA 강제 정렬 실행 (컨테이너 내부에서 직접 실행)
-    
-    Args:
-        audio_path: 음성 파일 경로
-        text: 정렬할 텍스트
-        output_path: TextGrid 출력 경로
-        overwrite: 기존 파일 덮어쓰기 여부
-        use_g2p: G2P 모델로 OOV 단어 발음 생성 여부
-        
-    Returns:
-        성공 여부
-    """
-
     if os.path.exists(output_path) and not overwrite:
         print(f"파일이 이미 존재함 (건너뜀): {output_path}")
         return True

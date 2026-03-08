@@ -1,11 +1,20 @@
+import os
 import glob
 import soundfile as sf
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+from common_config import get_common_path
 
 
-pattern = "/data2/ai_champion/silent_speech_dataset/*/*/data/audio/*.flac"
+pattern = os.path.join(
+    get_common_path("silent_speech_dataset", "/data/path/silent_speech_dataset"),
+    "*",
+    "*",
+    "data",
+    "audio",
+    "*.flac",
+)
 flac_paths = sorted(glob.glob(pattern, recursive=True))
 
 print(f"Found {len(flac_paths)} files")

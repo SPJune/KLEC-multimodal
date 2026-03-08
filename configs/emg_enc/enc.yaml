@@ -17,5 +17,5 @@ fusion_after_layer: 2
 video_encoder_mode: freeze
 # ids|logits|hidden
 video_encoder_output: hidden
-video_encoder_ckpt: /data2/spjune/v2sflow/v2sflow_encoder.pt
+video_encoder_ckpt: ${paths.v2sflow_encoder_ckpt}
 video_content_vocab_size: 1000

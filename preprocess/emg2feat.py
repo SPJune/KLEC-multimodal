@@ -16,10 +16,6 @@ from modules import EMGEncoder
 from loader import apply_to_all, subsample, notch_harmonics, remove_drift
 
 def permute_emg_channels(x: torch.Tensor, channel_indices):
-    """
-    채널별로 time 차원을 랜덤 permute.
-    x: (B, T, C)
-    """
     if len(channel_indices) == 0:
         return x
     x_perm = x.clone()
@@ -31,10 +27,6 @@ def permute_emg_channels(x: torch.Tensor, channel_indices):
     return x_perm
     
 def _extract_metric_from_ckpt_path(ckpt_path: str, metric_name: str):
-    """
-    PL ModelCheckpoint 파일명에서 metric 값을 파싱.
-    예) epoch=200-val_phone_accuracy=0.8123.ckpt
-    """
     m = re.search(rf"{re.escape(metric_name)}=([-+0-9.eE]+)", ckpt_path)
     if m is None:
         return None
@@ -62,12 +54,6 @@ def _extract_metric_from_newstyle_ckpt_path(ckpt_path: str):
 
 
 def get_best_ckpt(exp_name, exp_path, metric_name: str = "val_phone_accuracy"):
-    """
-    exp_path/exp_name 아래의 체크포인트 중 metric_name 기준으로 best를 선택.
-    기본은 val_phone_accuracy 최대값.
-
-    구버전( val_loss 기반 파일명 )만 존재하는 경우에는 val_loss 최소값으로 fallback.
-    """
     # 0) prefer new-style ckpts: "{epoch}-{score}.ckpt" where score is val_phone_accuracy_best
     # (saved by our current ModelCheckpoint naming policy)
     pattern_new = f"{exp_path}/{exp_name}/[0-9]*-*.ckpt"
@@ -126,13 +112,6 @@ def get_adjacent_paths(path):
     return before, after
 
 def _trim_time_series_torch(x: torch.Tensor, trim_left: int, trim_right: int | None = None, *, time_dim: int = 1) -> torch.Tensor:
-    """
-    시계열 텐서의 양끝을 자른다.
-    - x: (B, T, ...) 또는 (T, ...)
-    - trim_left/right: frame 단위
-    - time_dim: time 차원 인덱스 (기본: (B,T,...) 가정으로 1)
-    길이가 부족하면 빈 텐서(T=0)로 만든다.
-    """
     if trim_right is None:
         trim_right = trim_left
     trim_left = int(max(0, trim_left))
@@ -154,11 +133,6 @@ def _trim_time_series_torch(x: torch.Tensor, trim_left: int, trim_right: int | N
     return x[tuple(slc)]
 
 def _center_trim_to_length_torch(x: torch.Tensor, target_len: int, *, time_dim: int = 1) -> torch.Tensor:
-    """
-    중앙 기준(center crop)으로 target_len(프레임)로 자른다.
-    - 잘리는 길이는 좌/우 동일하게(홀수면 뒤쪽을 1프레임 더 자름)
-    - x의 길이가 target_len 이하이면 그대로 반환
-    """
     target_len = int(max(0, target_len))
     t = int(x.shape[time_dim])
     if t <= target_len:
@@ -176,13 +150,6 @@ def _align_emg_video(
     conv_ds: int = 4,
     video_fps: float = 25.0,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """
-    EMG(=frame_rate*conv_ds Hz)와 video feature(=video_fps Hz)를 시간 기준으로 정렬한다.
-    - 기준 time base: speech frame (=frame_rate Hz)로 환산한 길이
-      emg_eq_len   = T_emg // conv_ds
-      video_eq_len = T_vid * k  (k = frame_rate/video_fps 가 정수일 때)
-    - 중앙 기준으로 trim하며, k가 정수일 때는 길이를 k의 배수로 내림해서 정확히 정렬 가능하게 함.
-    """
     fr = float(frame_rate)
     vf = float(video_fps)
     conv_ds = int(conv_ds)
@@ -224,11 +191,6 @@ def _align_emg_video(
     return emg, video_feat
 
 def load_emg(path, frame_rate):
-    """
-    loader.py의 EMGDataset.load_emg와 동일한 전처리:
-    - 원본 250Hz(npz['data'] 또는 npy)을 notch+drift 제거 후
-    - (frame_rate * 4) Hz로 리샘플(모델 conv stride=2 두 번(/4)로 frame_rate 정렬)
-    """
     old_freq = 250
     conv_ds = 4
     resample_rate = float(frame_rate) * float(conv_ds)
@@ -261,9 +223,6 @@ def _parse_split_filter(split_value):
     return set(x.strip() for x in s.split(",") if x.strip())
 
 def _find_video_feature(data_path: str, data_type: str, session: str, data_num: int):
-    """
-    silent_speech_dataset/{data_type}/{session}/data/video_features 아래에서 *_<num>*.pth 찾기.
-    """
     vf_dir = os.path.join(data_path, "silent_speech_dataset", data_type, session, "data", "video_features")
     if not os.path.isdir(vf_dir):
         return None
@@ -378,9 +337,6 @@ def main(cfg:DictConfig):
             else:
                 video_padding_mask = torch.zeros((1, video_feat.shape[1]), device=device, dtype=torch.bool)
 
-            # ------------------------------------------------------------
-
-            # ------------------------------------------------------------
             emg, video_feat = _align_emg_video(
                 emg,
                 video_feat,
@@ -392,9 +348,6 @@ def main(cfg:DictConfig):
             if video_padding_mask is not None:
                 video_padding_mask = _center_trim_to_length_torch(video_padding_mask, int(video_feat.shape[1]), time_dim=1)
 
-        # ------------------------------------------------------------
-
-        # ------------------------------------------------------------
         if edge_trim_sec > 0:
             trim_emg = int(round(float(feature.frame_rate) * float(conv_ds) * edge_trim_sec))
             emg = _trim_time_series_torch(emg, trim_emg, time_dim=1)

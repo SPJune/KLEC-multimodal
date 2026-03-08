@@ -22,6 +22,7 @@ The current workflow used in this codebase is:
 - Common paths in `configs/common.yaml`
   - `data_path` (default: `/data/path`)
   - `exp_path` (default: `/exp/path`)
+  - `paths.*` (dataset/checkpoint absolute paths)
 
 Install dependencies:
 
@@ -91,7 +92,7 @@ python preprocess/prepare_video.py --input <input_mp4> --output <output_mp4>
 Dataset mode:
 
 ```bash
-python preprocess/prepare_video.py --base-path /data2/ai_champion/silent_speech_dataset
+python preprocess/prepare_video.py --base-path <paths.silent_speech_dataset>
 ```
 
 ### 5) Extract AV-HuBERT features from preprocessed videos
@@ -150,4 +151,3 @@ bash infer/emg2wer.sh my_exp last valid 3 --modality video
 - Validation/test filtering is implemented in `loader.py`.
 - Checkpoints are saved under `<exp_path>/<exp_name>/`.
 - Preprocessing scripts write files to dataset directories, so run dry-run options first when available.
-- `sovitssvc` and `hubert_soft`-specific paths/configs are no longer part of the active pipeline.

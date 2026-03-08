@@ -151,10 +151,6 @@ def extract_phoneme(path):
         phones.append(phone)
     return phones
 
-if __name__ == '__main__':
-    path = '/data2/spjune/silent_speech/silent_speech_dataset/train/nonparallel_data/4-29/112_tg.TextGrid'
-    print(extract_phoneme(path))
-
 @jit(nopython=True)
 def time_warp(costs):
     dtw = np.zeros_like(costs)

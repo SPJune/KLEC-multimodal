@@ -10,21 +10,18 @@ import json
 from functools import lru_cache
 
 import matplotlib.pyplot as plt
+from common_config import get_common_path
 
 
 import librosa
 import torch
 
-PHONEME_SET_JSON = "/data2/ai_champion/silent_speech_dataset/phoneme_set.json"
+PHONEME_SET_JSON = get_common_path(
+    "phoneme_set_json", "/data/path/silent_speech_dataset/phoneme_set.json"
+)
 
 @lru_cache(maxsize=1)
 def load_phoneme_inventory(json_path: str = PHONEME_SET_JSON):
-    """
-    프로젝트 전역에서 사용할 phoneme inventory를 지정된 json에서 로드한다.
-
-    기대 포맷:
-      { "phonemes": [ ... ] }
-    """
     if not os.path.exists(json_path):
         raise FileNotFoundError(f"phoneme_set.json not found: {json_path}")
     with open(json_path, "r", encoding="utf-8") as f:

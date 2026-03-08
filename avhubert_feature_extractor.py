@@ -7,9 +7,6 @@ AV-HuBERT feature extractor (video -> continuous features).
 This module uses the local `av_hubert` repo (vendored fairseq + avhubert code) and a checkpoint
 to extract per-frame features, typically (T, 1024) for AV-HuBERT Large.
 
-Checkpoint (default):
-  /data2/spjune/v2sflow/large_lrs3_iter5.pt
-
 Input video expectations:
   - Preprocessed mouth ROI video (grayscale), 25fps, typically 96x96.
   - We apply the same normalization scheme used by AV-HuBERT:
@@ -94,9 +91,7 @@ def _center_crop(frames: np.ndarray, crop_size: int) -> np.ndarray:
 
 @dataclass(frozen=True)
 class AVHuBERTExtractorConfig:
-    #ckpt_path: str = "/data2/spjune/v2sflow/large_vox_iter5.pt" # LRS3 + Vox Noise augmented
-    #ckpt_path: str = "/data2/spjune/v2sflow/large_vox.pt" # LRS3 + Vox
-    ckpt_path: str = "/data2/spjune/v2sflow/large_lrs3_iter5.pt" # LRS3
+    ckpt_path: str = "v2sflow_path/large_lrs3_iter5.pt" # LRS3
     # output_layer: None -> final layer. Set integer (1-based) to get intermediate layer.
     output_layer: Optional[int] = None
     device: str = "cuda"

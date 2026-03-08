@@ -15,12 +15,17 @@ from typing import Optional
 import sys
 
 from loss import dtw_loss
+from common_config import get_common_path
 
 from hifi_gan.env import AttrDict
 from hifi_gan.models import Generator
 
-V2SFLOW_ENCODER_CKPT_DEFAULT = "/data2/spjune/v2sflow/v2sflow_encoder.pt"
-HIFIGAN_VOCODER_CKPT_DEFAULT = "/data2/spjune/v2sflow/hifigan_vocoder.pt"
+V2SFLOW_ENCODER_CKPT_DEFAULT = get_common_path(
+    "v2sflow_encoder_ckpt", "/checkpoints/v2sflow/v2sflow_encoder.pt"
+)
+HIFIGAN_VOCODER_CKPT_DEFAULT = get_common_path(
+    "hifigan_vocoder_ckpt", "/checkpoints/v2sflow/hifigan_vocoder.pt"
+)
 
 
 def _linear(in_features, out_features, bias=True):

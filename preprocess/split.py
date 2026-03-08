@@ -2,19 +2,31 @@ import os
 import glob
 import random
 import pandas as pd
+from pathlib import Path
 from collections import defaultdict
+from omegaconf import OmegaConf
 
 
-BASE_DIR = "/data2/ai_champion"
-DATASET_DIR = os.path.join(BASE_DIR, "silent_speech_dataset")
+def _load_dataset_dir_from_common() -> str:
+    common_yaml = Path(__file__).resolve().parents[1] / "configs" / "common.yaml"
+    default_dataset_dir = "/data/path/silent_speech_dataset"
+    if not common_yaml.exists():
+        return default_dataset_dir
+    cfg = OmegaConf.load(common_yaml)
+    resolved = OmegaConf.to_container(cfg, resolve=True)
+    if not isinstance(resolved, dict):
+        return default_dataset_dir
+    paths = resolved.get("paths", {})
+    if not isinstance(paths, dict):
+        return default_dataset_dir
+    return str(paths.get("silent_speech_dataset", default_dataset_dir))
+
+
+DATASET_DIR = _load_dataset_dir_from_common()
+BASE_DIR = os.path.dirname(DATASET_DIR)
 
 
 def collect_files(data_type: str):
-    """
-    {base_dir}/silent_speech_dataset/{data_type}/{session}/data/emg/emg*{data_num}*.npz
-    형식의 파일을 모두 찾아서
-    (session, data_num) -> [full_paths...] 매핑 생성
-    """
     pattern = os.path.join(DATASET_DIR, data_type, "*", "data", "emg", "emg*.npz")
     file_paths = glob.glob(pattern, recursive=True)
 
@@ -49,7 +61,6 @@ def collect_files(data_type: str):
 def split_by_session_keys(keys, split_ratio, seed):
     """
     keys: [(session, data_num), ...]
-    각 session 별로 split_ratio에 맞게 (train/valid/test)로 나누기.
     """
     random.seed(seed)
 
@@ -94,15 +105,7 @@ def build_split_csv(
     seed: int = 42,
     output_csv: str = "emg_split.csv",
 ):
-    """
-    - silent, voiced 모두 스캔
-    - (session, data_num) 기준으로 silent에서 split 결정
-    - 같은 (session, data_num)을 가진 voiced는 동일 split 배정
-    - voiced에 없는 (session, data_num)은 warning 출력
-    - csv는 session, data_type, data_num, path, split 저장
-    - path는 /data2/ai_champion/silent_speech_dataset 이후의 상대경로
-    """
-    assert abs(sum(split_ratio) - 1.0) < 1e-6, "split_ratio 합은 1이어야 합니다."
+    assert abs(sum(split_ratio) - 1.0) < 1e-6, "sum of split_ratio should be 1."
 
 
     silent_map = collect_files("silent")
@@ -139,7 +142,7 @@ def build_split_csv(
         session, data_num = key
         v_paths = voiced_map.get(key)
         if not v_paths:
-            print(f"[WARNING] voiced 파일 없음: session={session}, data_num={data_num}")
+            print(f"[WARNING] voiced file not found: session={session}, data_num={data_num}")
             continue
         for full_path in v_paths:
             rel_path = os.path.relpath(full_path, BASE_DIR)
@@ -167,15 +170,15 @@ def build_split_csv(
 
     split_total_counts = df.groupby("split")["path"].count().reset_index(name="total")
 
-    print("\n[세션별 split 개수]")
+    print("\n[split count]")
     for _, row in session_split_counts.iterrows():
         print(f"session={row['session']}, split={row['split']}, count={row['count']}")
 
-    print("\n[세션별 총 개수]")
+    print("\n[session count]")
     for _, row in session_total_counts.iterrows():
         print(f"session={row['session']}, total={row['total']}")
 
-    print("\n[최종 split 개수]")
+    print("\n[final split count]")
     for _, row in split_total_counts.iterrows():
         print(f"split={row['split']}, total={row['total']}")
 

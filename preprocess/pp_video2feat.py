@@ -5,15 +5,15 @@
 Extract video features from *preprocessed* videos and save them for downstream use.
 
 Input:
-  /data2/ai_champion/silent_speech_dataset/{data_type}/{sess}/data/video_preprocessed/*.mp4
+  {paths.silent_speech_dataset}/{data_type}/{sess}/data/video_preprocessed/*.mp4
 
 Output:
-  /data2/ai_champion/silent_speech_dataset/{data_type}/{sess}/data/video_features/*.pth
+  {paths.silent_speech_dataset}/{data_type}/{sess}/data/video_features/*.pth
 
 Notes
 - V2SFlow expects 25Hz continuous AV-HuBERT-Large features (typically 1024-d per frame).
 - This script uses the local `av_hubert` repository + the checkpoint at
-  `/data2/spjune/v2sflow/large_lrs3_iter5.pt` to extract features.
+  `paths.avhubert_ckpt` in `configs/common.yaml` to extract features.
 
 Usage examples:
   # Extract all videos in a session
@@ -43,9 +43,12 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from avhubert_feature_extractor import AVHuBERTFeatureExtractor, AVHuBERTExtractorConfig
+from common_config import get_common_path
 
 
-DEFAULT_BASE_PATH = "/data2/ai_champion/silent_speech_dataset"
+DEFAULT_BASE_PATH = get_common_path(
+    "silent_speech_dataset", "/data/path/silent_speech_dataset"
+)
 
 
 def _video_preprocessed_glob(base_path: str, data_type: str, sess: str, num: Optional[int]) -> List[str]:
@@ -167,7 +170,7 @@ def main():
 
     extractor = AVHuBERTFeatureExtractor(
         AVHuBERTExtractorConfig(
-            ckpt_path="/data2/spjune/v2sflow/large_vox.pt",
+            ckpt_path=get_common_path("avhubert_ckpt", "/checkpoints/v2sflow/large_vox.pt"),
             output_layer=None,
             device=args.device,
         )

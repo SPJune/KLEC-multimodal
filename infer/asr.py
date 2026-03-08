@@ -43,12 +43,6 @@ def _int_to_sino_korean(num: int) -> str:
 _RE_1TO4DIGIT = re.compile(r"(?<!\d)\d{1,4}(?!\d)")
 
 def replace_1to4digit_numbers_with_korean(text: str) -> str:
-    """
-    ASR 결과 내 1~4자리 숫자(연도/수량 등)를 한글(한자어) 읽기로 변환.
-    예: "2014" -> "이천십사", "12" -> "십이", "7" -> "칠"
-    - 앞/뒤가 숫자인 경우(더 긴 숫자열의 일부)는 변환하지 않음
-    - 선행 0이 있는 경우(예: 0012)는 그대로 둠
-    """
     if not text:
         return text
 
@@ -125,26 +119,11 @@ def replace_single_latin_letters_with_korean(text: str) -> str:
     return _RE_SINGLE_LATIN.sub(_repl, text)
 
 def replace_percent_with_korean(text: str) -> str:
-    """
-    Replace percent symbols with Korean word.
-    Examples:
-      "50%" -> "50퍼센트"
-      "50％" -> "50퍼센트"
-    """
     if not text:
         return text
     return text.replace("％", "퍼센트").replace("%", "퍼센트")
 
 def limit_repeated_syllables_or_words(text: str, max_repeat: int = 3) -> str:
-    """
-    ASR prediction 후처리:
-    - 같은 어절(공백으로 구분되는 토큰)이 연속으로 max_repeat 초과 반복되면 max_repeat까지만 유지
-    - 같은 음절(유니코드 문자)이 연속으로 max_repeat 초과 반복되면 max_repeat까지만 유지
-
-    예)
-      "안녕 안녕 안녕 안녕" -> "안녕 안녕 안녕"
-      "하하하하하" -> "하하하"
-    """
     if not text:
         return text
     if max_repeat < 1:
@@ -217,10 +196,6 @@ def load_json(json_dir):
     return json_file['text']
 
 def load_text_pair_npz(npz_path: str) -> str:
-    """
-    silent_speech_dataset/*/{sess}/data/text/text_pair_*.npz 로부터 GT 텍스트 로드.
-    확인된 포맷: keys ['text1','text2', ...], text2가 문장.
-    """
     z = np.load(npz_path, allow_pickle=True)
     if "text2" not in z.files:
         raise KeyError(f"text2 not found in {npz_path}: keys={z.files}")
@@ -238,12 +213,6 @@ def _try_paths(paths):
     return None
 
 def find_gt_info_json(data_path: str, data_split: str, sess: str, idx: str):
-    """
-    GT text json을 여러 체계에 대해 탐색.
-    - legacy: silent_speech_dataset/{split}/voiced_parallel_data/{sess}/{idx}_info.json
-    - global: silent_speech_dataset/voiced_parallel_data/{sess}/{idx}_info.json
-    - new-ish: silent_speech_dataset/voiced/{sess}/data/info/{idx}_info.json
-    """
     base = os.path.join(data_path, "silent_speech_dataset")
     idx_i = None
     try:
@@ -280,10 +249,6 @@ def find_gt_info_json(data_path: str, data_split: str, sess: str, idx: str):
     return None
 
 def find_gt_text_pair_npz(data_path: str, data_type: str, sess: str, idx: str):
-    """
-    GT 텍스트를 text_pair_*.npz에서 찾는다.
-    예) /data2/ai_champion/silent_speech_dataset/silent/3-3/data/text/text_pair_3_3_3914.wav_*.npz
-    """
     base = os.path.join(data_path, "silent_speech_dataset")
 
 
@@ -304,11 +269,6 @@ def find_gt_text_pair_npz(data_path: str, data_type: str, sess: str, idx: str):
     return None
 
 def load_gt_text(cfg: DictConfig, sess: str, idx: str, data_type: str):
-    """
-    우선순위:
-    1) text_pair npz (새 체계)
-    2) legacy info json
-    """
     npz_path = find_gt_text_pair_npz(cfg.data_path, data_type, sess, idx)
     if npz_path is not None:
         return load_text_pair_npz(npz_path)
@@ -318,10 +278,6 @@ def load_gt_text(cfg: DictConfig, sess: str, idx: str, data_type: str):
     return None
 
 def iter_eval_wavs(cfg: DictConfig, data_dir: str):
-    """
-    가능한 경우 preprocess/emg_split.csv를 기준으로 평가 대상 wav 목록을 만든다.
-    그렇지 않으면 data_dir 아래 wav를 재귀적으로 모두 평가한다.
-    """
     project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     split_csv = os.path.join(project_dir, "preprocess", "emg_split.csv")
 

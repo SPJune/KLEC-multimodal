@@ -1,3 +1,11 @@
 seed: 42
-data_path: /data/path
 exp_path: /exp/path
+paths:
+  data_path: /data/path
+  ckpt_root: /ckpt/root
+  silent_speech_dataset: ${paths.data_path}/silent_speech_dataset
+  voiced_dataset: ${paths.silent_speech_dataset}/voiced
+  phoneme_set_json: ${paths.silent_speech_dataset}/phoneme_set.json
+  v2sflow_encoder_ckpt: ${paths.ckpt_root}/v2sflow/v2sflow_encoder.pt
+  hifigan_vocoder_ckpt: ${paths.ckpt_root}/v2sflow/hifigan_vocoder.pt
+  avhubert_ckpt: ${paths.ckpt_root}/v2sflow/large_vox.pt
