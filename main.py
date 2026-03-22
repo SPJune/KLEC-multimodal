@@ -15,7 +15,7 @@ from modules import EMGEncoder
 from data_utils import phoneme_inventory
 from utils import load_partial_pretrained_model
 
-WANDB_ID = 'anonymous'
+WANDB_ID = 'dlswns8'
 class AlwaysSaveLast(Callback):
     """Always overwrite a single 'last.ckpt' at each train epoch end."""
     def __init__(self, dirpath: str, filename: str = "last.ckpt", every_n_epochs: int = 1):
@@ -49,7 +49,7 @@ def main(cfg:DictConfig):
         pl.seed_everything(int(cfg.seed), workers=True)
     exp_dir = os.path.join(cfg.exp_path, cfg.exp_name)
     fig_dir = os.path.join(exp_dir, 'figure') if 'mspec' in cfg.feature.target else None
-    preprocessed_dir = os.path.join(cfg.data_path, 'preprocessed', 'target_feature', cfg.feature.target, f'{cfg.feature.sub_option}{cfg["feature"][cfg.feature.sub_option]}')
+    preprocessed_dir = os.path.join(cfg.paths.data_path, 'preprocessed', 'target_feature', cfg.feature.target, f'{cfg.feature.sub_option}{cfg["feature"][cfg.feature.sub_option]}')
     log.info(exp_dir)
     
     if cfg.debug:
@@ -57,7 +57,7 @@ def main(cfg:DictConfig):
         feat_norm = None
         fig_dir = None
     else:
-        wandb_logger = WandbLogger(project='2026Interspeech', entity=WANDB_ID, name=cfg.exp_name, save_dir=cfg.exp_path)
+        wandb_logger = WandbLogger(project='KLEC_channel', entity=WANDB_ID, name=cfg.exp_name, save_dir=cfg.exp_path)
         if fig_dir != None:
             os.makedirs(fig_dir, exist_ok=True)
             feat_norm, _ = pickle.load(open(os.path.join(preprocessed_dir, 'normalizer.pkl'), 'rb'))

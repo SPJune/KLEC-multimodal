@@ -9,3 +9,4 @@ paths:
   v2sflow_encoder_ckpt: ${paths.ckpt_root}/v2sflow/v2sflow_encoder.pt
   hifigan_vocoder_ckpt: ${paths.ckpt_root}/v2sflow/hifigan_vocoder.pt
   avhubert_ckpt: ${paths.ckpt_root}/v2sflow/large_vox.pt
+data_path: ${paths.data_path}

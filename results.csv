@@ -1,0 +1,3 @@
+exp_name,ckpt_epoch,split,cer,cer_wo_space,wer
+emg_only_full,59,valid,19.86,20.25,54.47
+emg_only_full,59,test,20.68,20.99,57.53

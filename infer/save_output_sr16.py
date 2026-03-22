@@ -9,11 +9,15 @@ import torch
 from tqdm import tqdm
 import json
 
-from save_output_gt import extract_filename
-
 project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_dir)
 from modules import Vocoder, HIFIGAN_VOCODER_CKPT_DEFAULT
+
+def extract_filename(path):
+    sess = path.split('/')[-2]
+    filename = path.split('/')[-1]
+    idx = filename.split('_')[0]
+    return sess, idx
 
 @hydra.main(version_base=None, config_path="../configs", config_name="evaluate")
 def main(cfg:DictConfig):
